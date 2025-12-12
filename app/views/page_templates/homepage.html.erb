@@ -1,0 +1,45 @@
+<h1>Wishlist Organizer</h1>
+
+<article>
+  <header>
+    Add an item
+  </header>
+
+  <form action="/insert_item" method="post">
+    <div>
+      <label for="url_box">URL</label>
+      <input id="url_box" type="text" name="query_url" placeholder="Paste a link here">
+    </div>
+
+    <div>
+      <label for="tag_names_box">Tags (comma-separated)</label>
+      <input id="tag_names_box" type="text" name="query_tag_names" placeholder="e.g. gifts, clothes, tech">
+    </div>
+
+    <button>Add item</button>
+  </form>
+</article>
+
+<% @list_of_tags.each do |a_tag| %>
+  <article>
+    <header>
+      <%= a_tag.name %>
+    </header>
+
+    <ul>
+      <% matching_item_tags = ItemTag.where({ :tag_id => a_tag.id }) %>
+
+      <% matching_item_tags.each do |an_item_tag| %>
+        <% matching_items = Item.where({ :id => an_item_tag.item_id, :user_id => current_user.id }) %>
+        <% the_item = matching_items.at(0) %>
+
+        <% if the_item != nil %>
+          <li>
+            <strong><%= the_item.title %></strong>
+            — <a href="<%= the_item.url %>">Open link</a>
+          </li>
+        <% end %>
+      <% end %>
+    </ul>
+  </article>
+<% end %>

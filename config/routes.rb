@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
-  # This is a blank app! Pick your first screen, build out the RCAV, and go from there. E.g.:
-  # get("/your_first_screen", { :controller => "pages", :action => "first" })
+  devise_for :users
+  root to: "pages#homepage"
+
+  post("/insert_item", { :controller => "items", :action => "create" })
+  get("/items",        { :controller => "items", :action => "index" })
 end
