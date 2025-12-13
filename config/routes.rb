@@ -4,4 +4,8 @@ Rails.application.routes.draw do
 
   post("/insert_item", { :controller => "items", :action => "create" })
   get("/items",        { :controller => "items", :action => "index" })
+  get("/categories", { :controller => "tags", :action => "index" })
+  get("/categories/:id", { :controller => "tags", :action => "show" })
+  get("/delete_category/:path_id", { :controller => "tags", :action => "destroy" })
+
 end

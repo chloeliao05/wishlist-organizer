@@ -24,7 +24,6 @@ class ItemsController < ApplicationController
     if the_item.valid?
       the_item.save
 
-      # --- TAGS (comma-separated) ---
       raw = params.fetch("query_tag_names", "")
       pieces = raw.split(",")
 
@@ -53,11 +52,31 @@ class ItemsController < ApplicationController
           end
         end
       end
-      # --- end TAGS ---
 
-      redirect_to("/items", { :notice => "Item created successfully." })
+      redirect_to("/", { :notice => "Item created successfully." })
     else
       redirect_to("/", { :alert => the_item.errors.full_messages.to_sentence })
     end
   end
+  
+  def destroy
+  if current_user == nil
+    redirect_to("/users/sign_in")
+    return
+  end
+
+  the_id = params.fetch("id")
+  the_item = Item.where({ :id => the_id, :user_id => current_user.id }).at(0)
+
+  if the_item != nil
+    matching_item_tags = ItemTag.where({ :item_id => the_item.id })
+    matching_item_tags.each do |an_item_tag|
+      an_item_tag.destroy
+    end
+
+    the_item.destroy
+  end
+
+  redirect_to("/categories", { :notice => "Item deleted successfully." })
+end
 end

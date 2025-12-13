@@ -1,0 +1,26 @@
+<h1><%= @the_tag.name %></h1>
+
+<p><a href="/categories">← Back to All Categories</a></p>
+<p><a href="/">← Back to Home</a></p>
+
+<% if @list_of_items.count == 0 %>
+  <p>No items in this category yet.</p>
+<% end %>
+
+<ul>
+  <% @list_of_items.each do |an_item| %>
+    <li>
+      <% if an_item.image_url.present? %>
+        <img src="<%= an_item.image_url %>" width="60">
+      <% end %>
+      
+      <strong><%= an_item.title.present? ? an_item.title : "Untitled" %></strong>
+      
+      <% if an_item.price.present? %>
+        - <%= an_item.price %> <%= an_item.currency %>
+      <% end %>
+      
+      - <a href="<%= an_item.url %>">Open link</a>
+    </li>
+  <% end %>
+</ul>

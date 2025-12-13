@@ -1,0 +1,17 @@
+<h1>My Wishlist</h1>
+
+<p><a href="/">← Back to Home</a></p>
+
+
+<% if @list_of_tags.count == 0 %>
+  <p>No categories yet. Add an item with a tag to create your first category!</p>
+<% end %>
+
+<% @list_of_tags.each do |a_tag| %>
+  <article style="display: flex; justify-content: space-between; align-items: center;">
+    <header>
+      <a href="/categories/<%= a_tag.id %>"><%= a_tag.name %></a>
+    </header>
+    <a href="/delete_category/<%= a_tag.id %>">Delete category</a>
+  </article>
+<% end %>

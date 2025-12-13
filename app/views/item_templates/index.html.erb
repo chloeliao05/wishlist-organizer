@@ -13,10 +13,10 @@
         <strong><%= an_item.title %></strong>
 
         <% if an_item.price.present? %>
-          — <%= an_item.price %> <%= an_item.currency %>
+           <%= an_item.price %> <%= an_item.currency %>
         <% end %>
 
-        — <a href="<%= an_item.url %>">Open link</a>
+        <a href="<%= an_item.url %>">Open link</a>
       </li>
     <% end %>
   </ul>
