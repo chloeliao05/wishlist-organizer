@@ -12,29 +12,40 @@ class TagsController < ApplicationController
   end
 
   def show
-    if current_user == nil
-      redirect_to("/users/sign_in")
-      return
+  if current_user == nil
+    redirect_to("/users/sign_in")
+    return
+  end
+
+  @the_tag = Tag.where({ :id => params.fetch("id"), :user_id => current_user.id }).at(0)
+
+  if @the_tag == nil
+    redirect_to("/categories")
+    return
+  end
+
+  matching_item_tags = ItemTag.where({ :tag_id => @the_tag.id })
+  @list_of_items = []
+
+  matching_item_tags.each do |an_item_tag|
+    the_item = Item.where({ :id => an_item_tag.item_id, :user_id => current_user.id }).at(0)
+    if the_item != nil
+      @list_of_items.push(the_item)
     end
+  end
 
-    @the_tag = Tag.where({ :id => params.fetch(:id), :user_id => current_user.id }).at(0)
+  sort_by = params.fetch("sort_by", "")
 
-    if @the_tag == nil
-      redirect_to("/categories")
-      return
-    end
+  if sort_by == "price"
+    @list_of_items = @list_of_items.sort_by { |item| item.price.to_f }.reverse
+  elsif sort_by == "priority"
+    priority_order = { "High" => 1, "Medium" => 2, "Low" => 3, "None" => 4, nil => 5, "" => 5 }
+    @list_of_items = @list_of_items.sort_by { |item| priority_order.fetch(item.priority, 5) }
+  elsif sort_by == "buy_by"
+    @list_of_items = @list_of_items.sort_by { |item| item.buy_by || Date.new(9999, 12, 31) }
+  end
 
-    matching_item_tags = ItemTag.where({ :tag_id => @the_tag.id })
-    @list_of_items = []
-
-    matching_item_tags.each do |an_item_tag|
-      the_item = Item.where({ :id => an_item_tag.item_id, :user_id => current_user.id }).at(0)
-      if the_item != nil
-        @list_of_items.push(the_item)
-      end
-    end
-
-    render({ :template => "tag_templates/show" })
+  render({ :template => "tag_templates/show" })
   end
 
   def destroy

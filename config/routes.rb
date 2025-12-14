@@ -8,5 +8,7 @@ Rails.application.routes.draw do
   get("/categories/:id", { :controller => "tags", :action => "show" })
   get("/delete_category/:path_id", { :controller => "tags", :action => "destroy" })
   post("/insert_category", { :controller => "tags", :action => "create" })
+  get("/items/:path_id", { :controller => "items", :action => "show" })
+  get("/delete_item/:path_id", { :controller => "items", :action => "destroy" })
 
 end

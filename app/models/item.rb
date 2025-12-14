@@ -2,18 +2,21 @@
 #
 # Table name: items
 #
-#  id         :bigint           not null, primary key
-#  currency   :string
-#  image_url  :string
-#  notes      :text
-#  price      :decimal(, )
-#  priority   :string
-#  status     :string
-#  title      :string
-#  url        :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  user_id    :bigint           not null
+#  id          :bigint           not null, primary key
+#  brand       :string
+#  buy_by      :date
+#  currency    :string
+#  description :text
+#  image_url   :string
+#  notes       :text
+#  price       :decimal(, )
+#  priority    :string
+#  status      :string
+#  title       :string
+#  url         :string
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  user_id     :bigint           not null
 #
 # Indexes
 #
