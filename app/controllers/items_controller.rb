@@ -12,50 +12,53 @@ class ItemsController < ApplicationController
   end
 
   def create
-    if current_user == nil
-      redirect_to("/users/sign_in")
-      return
+  if current_user == nil
+    redirect_to("/users/sign_in")
+    return
+  end
+
+  the_item = Item.new
+  the_item.user_id = current_user.id
+  the_item.url = params.fetch("query_url")
+  the_item.buy_by = params.fetch("query_buy_by", "")
+  the_item.notes = params.fetch("query_notes", "")
+
+  # Get item details from ChatGPT
+  item_details = get_item_details_from_ai(the_item.url)
+  the_item.title = item_details[:title]
+  the_item.image_url = item_details[:image_url]
+  the_item.price = item_details[:price]
+  the_item.currency = item_details[:currency]
+
+  if the_item.valid?
+    the_item.save
+
+    selected_tag = params.fetch("query_tag_name", "")
+
+    if selected_tag != ""
+      category_name = selected_tag
+    else
+      category_name = item_details[:category]
     end
 
-    the_item = Item.new
-    the_item.user_id = current_user.id
-    the_item.url = params.fetch("query_url")
+    matching_tags = Tag.where({ :user_id => current_user.id, :name => category_name })
+    the_tag = matching_tags.at(0)
 
-    if the_item.valid?
-      the_item.save
+    if the_tag == nil
+      the_tag = Tag.new
+      the_tag.user_id = current_user.id
+      the_tag.name = category_name
+      the_tag.save
+    end
 
-      raw = params.fetch("query_tag_names", "")
-      pieces = raw.split(",")
+    link = ItemTag.new
+    link.item_id = the_item.id
+    link.tag_id = the_tag.id
+    link.save
 
-      pieces.each do |piece|
-        name = piece.strip
-
-        if name != ""
-          matching_tags = Tag.where({ :user_id => current_user.id, :name => name })
-          the_tag = matching_tags.at(0)
-
-          if the_tag == nil
-            the_tag = Tag.new
-            the_tag.user_id = current_user.id
-            the_tag.name = name
-            the_tag.save
-          end
-
-          existing_links = ItemTag.where({ :item_id => the_item.id, :tag_id => the_tag.id })
-          link = existing_links.at(0)
-
-          if link == nil
-            link = ItemTag.new
-            link.item_id = the_item.id
-            link.tag_id = the_tag.id
-            link.save
-          end
-        end
-      end
-
-      redirect_to("/", { :notice => "Item created successfully." })
-    else
-      redirect_to("/", { :alert => the_item.errors.full_messages.to_sentence })
+    redirect_to("/", { :notice => "Item added to #{category_name}!" })
+  else
+    redirect_to("/", { :alert => the_item.errors.full_messages.to_sentence })
     end
   end
   
@@ -78,5 +81,5 @@ class ItemsController < ApplicationController
   end
 
   redirect_to("/categories", { :notice => "Item deleted successfully." })
-end
+  end
 end

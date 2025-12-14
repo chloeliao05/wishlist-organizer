@@ -55,5 +55,35 @@ class TagsController < ApplicationController
     the_tag.destroy
   end
   redirect_to("/categories", { :notice => "Category deleted successfully." })
-end
+  end
+
+  def create
+  if current_user == nil
+    redirect_to("/users/sign_in")
+    return
+  end
+
+  category_name = params.fetch("query_category_name").strip
+
+  if category_name == ""
+    redirect_to("/categories", { :alert => "Category name can't be blank." })
+    return
+  end
+
+  # Check if category already exists
+  existing = Tag.where({ :user_id => current_user.id, :name => category_name }).at(0)
+
+  if existing != nil
+    redirect_to("/categories", { :alert => "Category '#{category_name}' already exists." })
+    return
+  end
+
+  the_tag = Tag.new
+  the_tag.user_id = current_user.id
+  the_tag.name = category_name
+  the_tag.save
+
+  redirect_to("/categories", { :notice => "Category '#{category_name}' created!" })
+  end
+
 end
