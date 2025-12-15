@@ -81,7 +81,6 @@ class TagsController < ApplicationController
     return
   end
 
-  # Check if category already exists
   existing = Tag.where({ :user_id => current_user.id, :name => category_name }).at(0)
 
   if existing != nil

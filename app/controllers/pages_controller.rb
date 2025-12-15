@@ -1,7 +1,6 @@
 class PagesController < ApplicationController
   def homepage
     if current_user == nil
-      # Show a landing page for logged out users
       @list_of_items = []
       @list_of_tags = []
     else

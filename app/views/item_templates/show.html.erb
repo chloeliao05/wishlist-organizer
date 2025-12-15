@@ -6,7 +6,13 @@
   <p><a href="/categories">← Back to My Wishlist</a></p>
 <% end %>
 
-<h1><%= @the_item.title.present? ? @the_item.title : "Untitled" %></h1>
+<h1>
+  <% if @the_item.title != nil && @the_item.title != "" %>
+    <%= @the_item.title %>
+  <% else %>
+    Untitled
+  <% end %>
+</h1>
 
 <% if @the_item.image_url.present? %>
   <img src="<%= @the_item.image_url %>" style="max-width: 400px; height: auto;">

@@ -106,10 +106,8 @@ class ItemsController < ApplicationController
   the_id = params.fetch("path_id")
   the_item = Item.where({ :id => the_id, :user_id => current_user.id }).at(0)
 
-  # Check where to redirect
   from_all_items = params.fetch("from", "") == "all"
 
-  # Find the category before deleting
   category_id = nil
   if the_item != nil
     item_tag = ItemTag.where({ :item_id => the_item.id }).at(0)
@@ -117,7 +115,6 @@ class ItemsController < ApplicationController
       category_id = item_tag.tag_id
     end
 
-    # Delete associated item_tags
     matching_item_tags = ItemTag.where({ :item_id => the_item.id })
     matching_item_tags.each do |an_item_tag|
       an_item_tag.destroy
@@ -140,8 +137,6 @@ class ItemsController < ApplicationController
   require "http"
   require "json"
 
-  # Get data from Microlink with price selector
-  encoded_url = URI.encode_www_form_component(url)
   microlink_url = "https://api.microlink.io?url=" + encoded_url
   
   raw_microlink = HTTP.get(microlink_url).to_s
@@ -149,17 +144,33 @@ class ItemsController < ApplicationController
   
   microlink_data = parsed_microlink.fetch("data", {})
   
-  scraped_title = microlink_data.fetch("title", "") || ""
+  scraped_title = microlink_data.fetch("title", "")
+  if scraped_title == nil
+    scraped_title = ""
+  end
   scraped_image = ""
   if microlink_data["image"] != nil
-    scraped_image = microlink_data["image"].fetch("url", "") || ""
+    scraped_image = microlink_data["image"].fetch("url", "")
+    if scraped_image == nil
+      scraped_image = ""
+    end
   end
 
-  # Now use ChatGPT for category, store, description, price, currency
-  existing_tags = Tag.where({ :user_id => current_user.id }).pluck(:name)
+  matching_tags = Tag.where({ :user_id => current_user.id })
+  existing_tags = []
+  matching_tags.each do |a_tag|
+    existing_tags.push(a_tag.name)
+  end
   
-  if existing_tags.any?
-    category_list = existing_tags.join(", ")
+  if existing_tags.count > 0
+    category_list = ""
+    existing_tags.each do |tag_name|
+      if category_list == ""
+        category_list = tag_name
+      else
+        category_list = category_list + ", " + tag_name
+      end
+    end
     category_instruction = "Pick the best category from this list: #{category_list}. If none fit, create a new short category name."
   else
     category_instruction = "Suggest a short category name (1-2 words) like: Clothes, Electronics, Books, Home, Beauty, Sports, Toys, Food, Gifts."
@@ -206,7 +217,6 @@ If you cannot determine something, leave it blank. Respond with ONLY the format 
 
   result = parsed_response.fetch("choices").at(0).fetch("message").fetch("content")
 
-  # Parse the response
   title = ""
   price = ""
   currency = "USD"
@@ -215,27 +225,25 @@ If you cannot determine something, leave it blank. Respond with ONLY the format 
   description = ""
 
   result.each_line do |line|
-    if line.start_with?("TITLE:")
+    if line.include?("TITLE:")
       title = line.sub("TITLE:", "").strip
-    elsif line.start_with?("PRICE:")
+    elsif line.include?("PRICE:")
       price = line.sub("PRICE:", "").strip
-    elsif line.start_with?("CURRENCY:")
+    elsif line.include?("CURRENCY:")
       currency = line.sub("CURRENCY:", "").strip
-    elsif line.start_with?("STORE:")
+    elsif line.include?("STORE:")
       store = line.sub("STORE:", "").strip
-    elsif line.start_with?("CATEGORY:")
+    elsif line.include?("CATEGORY:")
       category = line.sub("CATEGORY:", "").strip
-    elsif line.start_with?("DESCRIPTION:")
+    elsif line.include?("DESCRIPTION:")
       description = line.sub("DESCRIPTION:", "").strip
     end
   end
 
-  # Use scraped title if ChatGPT didn't get one
   if title == ""
     title = scraped_title
   end
 
-  # Use Microlink image
   image_url = scraped_image
 
   return { title: title, price: price, currency: currency, category: category, store: store, description: description, image_url: image_url }
@@ -247,16 +255,31 @@ If you cannot determine something, leave it blank. Respond with ONLY the format 
     return
   end
 
-  # Handle sorting
   sort_by = params.fetch("sort_by", "")
 
   if sort_by == "price"
     @list_of_items = Item.where({ :user_id => current_user.id }).order({ :price => :desc })
   elsif sort_by == "priority"
-    # Get all items first, then sort in Ruby
     all_items = Item.where({ :user_id => current_user.id })
-    priority_order = { "High" => 1, "Medium" => 2, "Low" => 3, "None" => 4, nil => 5, "" => 5 }
-    @list_of_items = all_items.sort_by { |item| priority_order.fetch(item.priority, 5) }
+    
+    high_items = []
+    medium_items = []
+    low_items = []
+    none_items = []
+    
+    all_items.each do |an_item|
+      if an_item.priority == "High"
+        high_items.push(an_item)
+      elsif an_item.priority == "Medium"
+        medium_items.push(an_item)
+      elsif an_item.priority == "Low"
+        low_items.push(an_item)
+      else
+        none_items.push(an_item)
+      end
+    end
+    
+    @list_of_items = high_items + medium_items + low_items + none_items
   elsif sort_by == "buy_by"
     @list_of_items = Item.where({ :user_id => current_user.id }).order({ :buy_by => :asc })
   else

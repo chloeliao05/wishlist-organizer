@@ -4,12 +4,13 @@
 
   <form action="/all_items" method="get" style="display: flex; align-items: center; gap: 10px;">
     <label for="sort_by" style="font-size: 14px; white-space: nowrap;">Sort by:</label>
-    <select id="sort_by" name="sort_by" onchange="this.form.submit()" style="font-size: 14px; padding: 5px 10px;">
+    <select id="sort_by" name="sort_by" style="font-size: 14px; padding: 5px 10px;">
       <option value="">-- Select --</option>
       <option value="price">Price  (High to Low)</option>
       <option value="priority">Priority (High to Low)</option>
       <option value="buy_by">Buy By Date (Most Recent)</option>
     </select>
+      <button style="font-size: 14px; padding: 5px 10px;">Sort</button>
   </form>
 </div>
 
@@ -26,7 +27,11 @@
         <% end %>
         
         <a href="/items/<%= an_item.id %>?from=all">
-          <%= an_item.title.present? ? an_item.title : "Untitled" %>
+          <% if an_item.title != nil && an_item.title != "" %>
+            <%= an_item.title %>
+          <% else %>
+            Untitled
+          <% end %>
         </a>
       </div>
 
