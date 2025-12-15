@@ -19,6 +19,6 @@
 #  fk_rails_...  (tag_id => tags.id)
 #
 class ItemTag < ApplicationRecord
-  belongs_to :item
-  belongs_to :tag
+  belongs_to :item, class_name: "Item", foreign_key: "item_id"
+  belongs_to :tag, class_name: "Tag", foreign_key: "tag_id"
 end

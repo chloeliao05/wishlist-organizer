@@ -18,5 +18,8 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class Tag < ApplicationRecord
-  belongs_to :user
+  validates :name, presence: true
+
+  belongs_to :user, class_name: "User", foreign_key: "user_id"
+  has_many :item_tags, class_name: "ItemTag", foreign_key: "tag_id", dependent: :destroy
 end
