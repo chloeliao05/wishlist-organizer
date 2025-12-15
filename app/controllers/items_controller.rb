@@ -137,7 +137,7 @@ class ItemsController < ApplicationController
   require "http"
   require "json"
 
-  microlink_url = "https://api.microlink.io?url=" + encoded_url
+  microlink_url = "https://api.microlink.io?url=" + url
   
   raw_microlink = HTTP.get(microlink_url).to_s
   parsed_microlink = JSON.parse(raw_microlink)
