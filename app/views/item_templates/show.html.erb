@@ -1,4 +1,6 @@
-<% if @the_tag != nil %>
+<% if params.fetch("from", "") == "all" %>
+  <p><a href="/all_items">← Back to All Items</a></p>
+<% elsif @the_tag != nil %>
   <p><a href="/categories/<%= @the_tag.id %>">← Back to <%= @the_tag.name %></a></p>
 <% else %>
   <p><a href="/categories">← Back to My Wishlist</a></p>
@@ -7,7 +9,7 @@
 <h1><%= @the_item.title.present? ? @the_item.title : "Untitled" %></h1>
 
 <% if @the_item.image_url.present? %>
-  <img src="<%= @the_item.image_url %>" style="max-width: 300px;">
+  <img src="<%= @the_item.image_url %>" style="max-width: 400px; height: auto;">
 <% end %>
 
 <% if @the_item.description.present? %>
@@ -24,4 +26,8 @@
   <p><strong>Notes:</strong> <%= @the_item.notes %></p>
 <% end %>
 
-<p><a href="/delete_item/<%= @the_item.id %>">Delete item</a></p>
+<% if params.fetch("from", "") == "all" %>
+  <p><a href="/delete_item/<%= @the_item.id %>?from=all">Delete item</a></p>
+<% else %>
+  <p><a href="/delete_item/<%= @the_item.id %>">Delete item</a></p>
+<% end %>

@@ -10,5 +10,6 @@ Rails.application.routes.draw do
   post("/insert_category", { :controller => "tags", :action => "create" })
   get("/items/:path_id", { :controller => "items", :action => "show" })
   get("/delete_item/:path_id", { :controller => "items", :action => "destroy" })
+  get("/all_items", { :controller => "items", :action => "all" })
 
 end

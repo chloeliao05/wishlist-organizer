@@ -1,21 +1,20 @@
-<h1><%= @the_tag.name %></h1>
+<h1>All Items</h1>
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-  <p><a href="/categories">← Back to My Wishlist</a></p>
 
-  <form action="/categories/<%= @the_tag.id %>" method="get" style="display: flex; align-items: center; gap: 10px;">
-    <label for="sort_by" style="font-size: 14px;">Sort by:</label>
+  <form action="/all_items" method="get" style="display: flex; align-items: center; gap: 10px;">
+    <label for="sort_by" style="font-size: 14px; white-space: nowrap;">Sort by:</label>
     <select id="sort_by" name="sort_by" onchange="this.form.submit()" style="font-size: 14px; padding: 5px 10px;">
       <option value="">-- Select --</option>
-      <option value="price">Price (High to Low)</option>
-      <option value="priority">Priority(High to Low)</option>
+      <option value="price">Price  (High to Low)</option>
+      <option value="priority">Priority (High to Low)</option>
       <option value="buy_by">Buy By Date (Most Recent)</option>
     </select>
   </form>
 </div>
 
 <% if @list_of_items.count == 0 %>
-  <p>No items in this category yet.</p>
+  <p>No items yet. Add some items from the home page!</p>
 <% end %>
 
 <ul>
@@ -26,7 +25,7 @@
           <img src="<%= an_item.image_url %>" style="width: 80px; height: auto;">
         <% end %>
         
-        <a href="/items/<%= an_item.id %>">
+        <a href="/items/<%= an_item.id %>?from=all">
           <%= an_item.title.present? ? an_item.title : "Untitled" %>
         </a>
       </div>
@@ -37,7 +36,7 @@
         <% end %>
 
         <% if an_item.buy_by.present? %>
-          <span>Buy by: <%= an_item.buy_by.strftime("%B %d, %Y") %></span>
+          <span>Buy by: <%= an_item.buy_by.to_date.strftime("%B %d, %Y") %></span>
         <% end %>
       </div>
     </li>
