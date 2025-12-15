@@ -55,7 +55,12 @@ class ItemsController < ApplicationController
   item_details = get_item_details_from_ai(the_item.url)
   the_item.title = item_details[:title]
   the_item.image_url = item_details[:image_url]
-  the_item.price = item_details[:price]
+  manual_price = params.fetch("query_price", "")
+  if manual_price != ""
+    the_item.price = manual_price
+  else
+    the_item.price = item_details[:price]
+  end
   the_item.currency = item_details[:currency]
   the_item.description = item_details[:description]
   the_item.brand = item_details[:store]
